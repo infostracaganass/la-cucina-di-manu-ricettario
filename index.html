@@ -338,7 +338,7 @@
       if (!q) return safe;
       const first = q.split(' ').filter(Boolean)[0];
       if (!first || first.length < 3) return safe;
-      const re = new RegExp('(' + first.replace(/[.*+?^${}()|[\]\]/g, '\$&') + ')', 'ig');
+      const re = new RegExp('(' + first.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
       return safe.replace(re, '<mark>$1</mark>');
     }
 
