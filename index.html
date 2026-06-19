@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>La cucina di Manu – Ricettario cercabile</title>
   <meta name="description" content="Motore di ricerca responsive delle ricette dei ricettari del progetto La cucina di Manu.">
+  <meta name="theme-color" content="#c99b27">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="La cucina di Manu">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <style>
     :root {
       --yellow: #c99b27;
@@ -145,21 +154,33 @@
     .search-content { padding: 14px; }
     .search-box {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(0, 1fr) auto auto;
       gap: 10px;
       background: #fffef9;
       border: 2px solid rgba(154,116,26,.28);
       border-radius: 999px;
       padding: 8px;
+      align-items: stretch;
     }
     input[type="search"] {
       width: 100%; border: 0; outline: 0; padding: 12px 16px;
       font-size: 1.02rem; background: transparent; color: var(--ink);
     }
+    .search-btn,
     .clear-btn {
-      border: 0; background: var(--yellow-soft); color: var(--ink);
-      border-radius: 999px; padding: 0 15px; font-weight: 850; cursor: pointer;
+      border: 0;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0 15px;
+      font-weight: 850;
+      cursor: pointer;
+      min-height: 44px;
+      white-space: nowrap;
     }
+    .search-btn { background: var(--yellow); }
+    .clear-btn { background: var(--yellow-soft); }
+    .search-btn:active,
+    .clear-btn:active { transform: translateY(1px); }
     .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
     .chip {
       border: 1px solid rgba(17,17,17,.14); background: rgba(255,255,255,.92);
@@ -220,6 +241,35 @@
     }
     .footer { padding: 24px 0 46px; color: var(--muted); font-size: .92rem; }
     mark { background: var(--yellow-soft); color: var(--ink); border-radius: 4px; padding: 0 2px; }
+    .search-panel.compact {
+      padding: 6px 0;
+      background: linear-gradient(180deg, rgba(255,248,223,.98), rgba(255,248,223,.90));
+    }
+    .search-panel.compact .search-title,
+    .search-panel.compact .filters { display: none; }
+    .search-panel.compact .search-table {
+      border-radius: 20px;
+      box-shadow: 0 10px 26px rgba(17,17,17,.10);
+    }
+    .search-panel.compact .search-content { padding: 8px; }
+    .search-panel.compact .search-box {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 999px;
+    }
+    .search-panel.compact input[type="search"] {
+      grid-column: auto;
+      padding: 9px 10px;
+      font-size: .96rem;
+      min-width: 0;
+    }
+    .search-panel.compact .search-btn,
+    .search-panel.compact .clear-btn {
+      min-height: 38px;
+      padding: 0 10px;
+      font-size: .88rem;
+    }
     @media (max-width: 960px) { .grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 680px) {
       .page { width: min(100% - 20px, 1120px); }
@@ -233,13 +283,22 @@
       .search-panel { margin: 10px 0 14px; padding: 10px 0; }
       .search-title { align-items: flex-start; flex-direction: column; gap: 2px; }
       .search-content { padding: 12px; }
-      .search-box { grid-template-columns: 1fr; border-radius: 22px; }
+      .search-box { grid-template-columns: 1fr 1fr; border-radius: 22px; }
+      .search-box input[type="search"] { grid-column: 1 / -1; }
       input[type="search"] { padding: 13px 12px; }
-      .clear-btn { min-height: 42px; }
+      .search-btn, .clear-btn { min-height: 42px; }
+      .search-panel.compact .search-box input[type="search"] { grid-column: auto; }
       .filters .chip { flex: 1 1 calc(50% - 8px); }
       .grid { grid-template-columns: 1fr; gap: 12px; }
       .meta-bar { align-items: flex-start; flex-direction: column; }
       .notice { grid-template-columns: 1fr; border-radius: 22px; }
+    }
+    @media (max-width: 380px) {
+      .search-panel.compact .search-btn,
+      .search-panel.compact .clear-btn {
+        padding: 0 8px;
+        font-size: .82rem;
+      }
     }
   </style>
 </head>
@@ -260,17 +319,18 @@
       </section>
     </header>
 
-    <section class="search-panel" aria-label="Ricerca ricette">
+    <section class="search-panel" id="searchPanel" aria-label="Ricerca ricette">
       <div class="search-table">
         <div class="search-title">
           <span>Motore di ricerca ricette</span>
           <small>cerca nei due ricettari</small>
         </div>
         <div class="search-content">
-          <div class="search-box">
-            <input id="search" type="search" autocomplete="off" placeholder="Cerca per alimento, titolo o idea: zucca, risotto, pollo, torta, cena veloce…" aria-label="Cerca ricette">
+          <form class="search-box" id="searchForm" role="search">
+            <input id="search" type="search" autocomplete="off" enterkeyhint="search" placeholder="Cerca per alimento, titolo o idea: zucca, risotto, pollo, torta, cena veloce…" aria-label="Cerca ricette">
+            <button class="search-btn" id="searchBtn" type="submit">Cerca</button>
             <button class="clear-btn" id="clearBtn" type="button">Cancella</button>
-          </div>
+          </form>
           <div class="filters" id="filters" aria-label="Filtri categoria"></div>
         </div>
       </div>
@@ -306,7 +366,10 @@
     let activeCategory = 'Tutte';
 
     const el = {
+      searchPanel: document.getElementById('searchPanel'),
+      form: document.getElementById('searchForm'),
       search: document.getElementById('search'),
+      searchBtn: document.getElementById('searchBtn'),
       clear: document.getElementById('clearBtn'),
       filters: document.getElementById('filters'),
       results: document.getElementById('results'),
@@ -418,14 +481,51 @@
     renderFilters();
     render();
 
+    function submitSearch() {
+      render();
+      el.search.blur();
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
+    }
+
+    let compactTrigger = 0;
+    function refreshCompactTrigger() {
+      if (!el.searchPanel) return;
+      const rect = el.searchPanel.getBoundingClientRect();
+      compactTrigger = window.scrollY + rect.top + 12;
+    }
+
+    function updateSearchCompactMode() {
+      if (!el.searchPanel) return;
+      const mobile = window.matchMedia('(max-width: 680px)').matches;
+      el.searchPanel.classList.toggle('compact', mobile && window.scrollY > compactTrigger);
+    }
+
     el.search.addEventListener('input', render);
+    el.form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      submitSearch();
+    });
     el.clear.addEventListener('click', () => {
       el.search.value = '';
       activeCategory = 'Tutte';
       renderFilters();
       render();
-      el.search.focus();
+      el.search.blur();
     });
+
+    window.addEventListener('scroll', updateSearchCompactMode, { passive: true });
+    window.addEventListener('resize', () => {
+      refreshCompactTrigger();
+      updateSearchCompactMode();
+    });
+    window.addEventListener('load', () => {
+      refreshCompactTrigger();
+      updateSearchCompactMode();
+    });
+    refreshCompactTrigger();
+    updateSearchCompactMode();
   </script>
 </body>
 </html>

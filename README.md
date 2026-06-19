@@ -46,3 +46,14 @@ Per aggiornare la webapp:
 1. sostituire `index.html` nel repository GitHub;
 2. fare commit su `main`;
 3. Vercel pubblicherà automaticamente la nuova versione.
+
+
+## Aggiornamento mobile / PWA
+
+Questa versione include:
+- pulsante `Cerca` per confermare la ricerca e chiudere la tastiera su cellulare;
+- barra di ricerca sticky più compatta durante lo scroll da mobile;
+- icone PWA per aggiunta alla schermata Home del cellulare;
+- manifest `site.webmanifest` per Vercel.
+
+Per aggiornare il deploy: caricare/committare tutti i file della cartella nella root del repository GitHub.
