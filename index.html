@@ -489,17 +489,19 @@
       }
     }
 
-    let compactTrigger = 0;
+    const TOP_EXPANDED_THRESHOLD = 16;
+
     function refreshCompactTrigger() {
-      if (!el.searchPanel) return;
-      const rect = el.searchPanel.getBoundingClientRect();
-      compactTrigger = window.scrollY + rect.top + 12;
+      // La versione compatta deve restare attiva finché non si torna davvero in cima alla pagina.
+      // Non ricalcoliamo più la posizione del box sticky: su mobile il box torna grande solo con scrollY quasi a 0.
+      return TOP_EXPANDED_THRESHOLD;
     }
 
     function updateSearchCompactMode() {
       if (!el.searchPanel) return;
       const mobile = window.matchMedia('(max-width: 680px)').matches;
-      el.searchPanel.classList.toggle('compact', mobile && window.scrollY > compactTrigger);
+      const atPageTop = window.scrollY <= TOP_EXPANDED_THRESHOLD;
+      el.searchPanel.classList.toggle('compact', mobile && !atPageTop);
     }
 
     el.search.addEventListener('input', render);
