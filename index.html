@@ -280,15 +280,38 @@
       .lead { font-size: .98rem; }
       .actions { gap: 8px; }
       .btn { width: 100%; }
-      .search-panel { margin: 10px 0 14px; padding: 10px 0; }
-      .search-title { align-items: flex-start; flex-direction: column; gap: 2px; }
-      .search-content { padding: 12px; }
-      .search-box { grid-template-columns: 1fr 1fr; border-radius: 22px; }
-      .search-box input[type="search"] { grid-column: 1 / -1; }
-      input[type="search"] { padding: 13px 12px; }
-      .search-btn, .clear-btn { min-height: 42px; }
-      .search-panel.compact .search-box input[type="search"] { grid-column: auto; }
-      .filters .chip { flex: 1 1 calc(50% - 8px); }
+
+      /* Su cellulare il motore di ricerca resta sempre compatto: nessun cambio forma durante lo scroll. */
+      .search-panel {
+        margin: 10px 0 14px;
+        padding: 6px 0;
+        background: linear-gradient(180deg, rgba(255,248,223,.98), rgba(255,248,223,.90));
+      }
+      .search-title,
+      .filters { display: none; }
+      .search-table {
+        border-radius: 20px;
+        box-shadow: 0 10px 26px rgba(17,17,17,.10);
+      }
+      .search-content { padding: 8px; }
+      .search-box {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 6px;
+        padding: 6px;
+        border-radius: 999px;
+      }
+      .search-box input[type="search"] {
+        grid-column: auto;
+        padding: 9px 10px;
+        font-size: .96rem;
+        min-width: 0;
+      }
+      .search-btn,
+      .clear-btn {
+        min-height: 38px;
+        padding: 0 10px;
+        font-size: .88rem;
+      }
       .grid { grid-template-columns: 1fr; gap: 12px; }
       .meta-bar { align-items: flex-start; flex-direction: column; }
       .notice { grid-template-columns: 1fr; border-radius: 22px; }
@@ -489,19 +512,11 @@
       }
     }
 
-    const TOP_EXPANDED_THRESHOLD = 16;
-
-    function refreshCompactTrigger() {
-      // La versione compatta deve restare attiva finché non si torna davvero in cima alla pagina.
-      // Non ricalcoliamo più la posizione del box sticky: su mobile il box torna grande solo con scrollY quasi a 0.
-      return TOP_EXPANDED_THRESHOLD;
-    }
-
-    function updateSearchCompactMode() {
+    function setSearchCompactMode() {
       if (!el.searchPanel) return;
+      // Da cellulare il box rimane sempre compatto; da desktop resta nella versione completa.
       const mobile = window.matchMedia('(max-width: 680px)').matches;
-      const atPageTop = window.scrollY <= TOP_EXPANDED_THRESHOLD;
-      el.searchPanel.classList.toggle('compact', mobile && !atPageTop);
+      el.searchPanel.classList.toggle('compact', mobile);
     }
 
     el.search.addEventListener('input', render);
@@ -517,17 +532,9 @@
       el.search.blur();
     });
 
-    window.addEventListener('scroll', updateSearchCompactMode, { passive: true });
-    window.addEventListener('resize', () => {
-      refreshCompactTrigger();
-      updateSearchCompactMode();
-    });
-    window.addEventListener('load', () => {
-      refreshCompactTrigger();
-      updateSearchCompactMode();
-    });
-    refreshCompactTrigger();
-    updateSearchCompactMode();
+    window.addEventListener('resize', setSearchCompactMode);
+    window.addEventListener('load', setSearchCompactMode);
+    setSearchCompactMode();
   </script>
 </body>
 </html>
