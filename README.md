@@ -57,3 +57,9 @@ Questa versione include:
 - manifest `site.webmanifest` per Vercel.
 
 Per aggiornare il deploy: caricare/committare tutti i file della cartella nella root del repository GitHub.
+
+
+## Aggiornamento: conteggio, tasto cima e logo
+- Il conteggio mostra soltanto `N ricette trovate`.
+- Comparsa di un piccolo tasto per tornare in cima dopo lo scroll; scompare in cima alla pagina.
+- Inserita la dicitura `dal 2021` nel riquadro logo senza modificare la posizione del logo.
